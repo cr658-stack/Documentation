@@ -3,7 +3,6 @@ const bgAudio    = document.getElementById('bg-audio');
 const musicBtn   = document.getElementById('music-btn');
 const musicIcon  = document.getElementById('music-icon');
 const musicLabel = document.getElementById('music-label');
-
 let musicStarted = false;
 
 function setPlaying(isPlaying) {
@@ -20,7 +19,6 @@ function setPlaying(isPlaying) {
 
 musicBtn.addEventListener('click', () => {
   if (!bgAudio) return;
-
   if (!musicStarted) {
     bgAudio.volume = 0.3;
     bgAudio.play().then(() => {
@@ -36,7 +34,7 @@ musicBtn.addEventListener('click', () => {
   }
 });
 
-// Auto-pause music when a video starts — user controls music manually after
+// Auto-pause music when a video starts
 document.querySelectorAll('video').forEach(video => {
   video.addEventListener('play', () => {
     if (!bgAudio.paused) {
@@ -50,7 +48,6 @@ document.querySelectorAll('video').forEach(video => {
 document.querySelectorAll('.video-thumb').forEach(thumb => {
   const btn   = thumb.querySelector('.play-btn');
   const video = thumb.querySelector('video');
-
   if (!btn || !video) return;
 
   btn.addEventListener('click', () => {
