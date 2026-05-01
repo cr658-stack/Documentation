@@ -1,73 +1,403 @@
-// ── BACKGROUND AUDIO + MUSIC TOGGLE BUTTON ──
-const bgAudio  = document.getElementById('bg-audio');
-const musicBtn = document.getElementById('music-btn');
-const musicIcon = document.getElementById('music-icon');
-const musicLabel = document.getElementById('music-label');
- 
-let musicStarted = false;
- 
-function setPlaying(isPlaying) {
-  if (isPlaying) {
-    musicIcon.textContent  = '■';   // stop icon when playing
-    musicLabel.textContent = 'Pause';
-    musicBtn.classList.add('playing');
-  } else {
-    musicIcon.textContent  = '▶';
-    musicLabel.textContent = 'Music';
-    musicBtn.classList.remove('playing');
-  }
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #0c0c0c;
+  --surface: #141414;
+  --border: #242424;
+  --text: #e8e4dc;
+  --muted: #5a5650;
+  --accent: #c8a97e;
+  --accent-dim: rgba(200, 169, 126, 0.12);
+  --tag-bg: #1e1c1a;
 }
- 
-musicBtn.addEventListener('click', () => {
-  if (!bgAudio) return;
- 
-  if (!musicStarted) {
-    // First click — start the audio
-    bgAudio.volume = 0.3; // adjust volume here (0.0 - 1.0)
-    bgAudio.play().then(() => {
-      musicStarted = true;
-      setPlaying(true);
-    }).catch(() => {});
-  } else if (bgAudio.paused) {
-    bgAudio.play();
-    setPlaying(true);
-  } else {
-    bgAudio.pause();
-    setPlaying(false);
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Mono', monospace;
+  font-weight: 300;
+  line-height: 1.7;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── NOISE OVERLAY ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 999;
+  opacity: 0.6;
+}
+
+/* ── HEADER ── */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2rem 3rem;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: rgba(12, 12, 12, 0.92);
+  backdrop-filter: blur(12px);
+  z-index: 100;
+}
+
+.logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.15rem;
+  letter-spacing: 0.02em;
+  color: var(--accent);
+}
+
+nav {
+  display: flex;
+  gap: 2rem;
+}
+
+nav a {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  transition: color 0.2s;
+}
+
+nav a:hover { color: var(--text); }
+
+/* ── HERO ── */
+.hero {
+  padding: 8rem 3rem 6rem;
+  max-width: 900px;
+}
+
+.hero-label {
+  font-size: 0.68rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.hero-label::after {
+  content: '';
+  display: block;
+  width: 40px;
+  height: 1px;
+  background: var(--accent);
+  opacity: 0.5;
+}
+
+h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(3rem, 7vw, 5.5rem);
+  line-height: 1.05;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  margin-bottom: 2rem;
+}
+
+h1 em {
+  font-style: italic;
+  color: var(--accent);
+}
+
+.hero-desc {
+  font-size: 0.85rem;
+  color: var(--muted);
+  max-width: 520px;
+  line-height: 1.9;
+}
+
+/* ── SECTION ── */
+section {
+  padding: 5rem 3rem;
+  border-top: 1px solid var(--border);
+}
+
+/* ── SECTION DIVIDER ── */
+.section-divider {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  margin-bottom: 3.5rem;
+}
+
+.section-num {
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  color: var(--accent);
+  opacity: 0.7;
+}
+
+.section-divider h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.05rem;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.section-type {
+  font-size: 0.62rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 0.25rem 0.7rem;
+  border: 1px solid var(--border);
+}
+
+.section-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* ── PROJECT LAYOUT ── */
+.project-layout {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 4rem;
+  align-items: center;
+}
+
+.project-layout.reverse {
+  grid-template-columns: 1fr 1.4fr;
+}
+
+.project-layout.reverse .project-media { order: 2; }
+.project-layout.reverse .project-info  { order: 1; }
+
+/* ── PROJECT MEDIA ── */
+.preview-strip {
+  width: 100%;
+  aspect-ratio: 16/9;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.preview-strip img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.preview-placeholder {
+  font-size: 0.62rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+  opacity: 0.4;
+}
+
+/* ── VIDEO THUMB (landscape default) ── */
+.video-thumb {
+  width: 100%;
+  aspect-ratio: 16/9;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── PORTRAIT VIDEO (phone-recorded, vertical) ── */
+.video-thumb.portrait {
+  aspect-ratio: 9/16;
+  width: auto;
+  height: 520px;
+  margin: 0 auto;
+}
+
+.video-thumb video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  background: #000;
+}
+
+.play-btn {
+  position: absolute;
+  width: 56px;
+  height: 56px;
+  border: 1px solid var(--accent);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s, opacity 0.2s;
+  background: rgba(12, 12, 12, 0.7);
+  z-index: 2;
+}
+
+.play-btn:hover {
+  background: var(--accent);
+  color: var(--bg);
+  transform: scale(1.08);
+}
+
+/* ── PROJECT INFO ── */
+.project-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  font-weight: 400;
+  line-height: 1.15;
+  margin-bottom: 1.2rem;
+}
+
+.project-title em {
+  font-style: italic;
+  color: var(--accent);
+}
+
+.project-desc {
+  font-size: 0.8rem;
+  color: var(--muted);
+  line-height: 1.9;
+  margin-bottom: 1.8rem;
+}
+
+.card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.8rem;
+}
+
+.tag {
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.28rem 0.65rem;
+  background: var(--tag-bg);
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
+
+.project-link {
+  display: inline-block;
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(200, 169, 126, 0.3);
+  padding-bottom: 0.2rem;
+  transition: border-color 0.2s;
+}
+
+.project-link:hover {
+  border-color: var(--accent);
+}
+
+/* ── MUSIC TOGGLE BUTTON ── */
+#music-btn {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.65rem 1.1rem;
+  background: rgba(12, 12, 12, 0.85);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  transition: border-color 0.2s, color 0.2s;
+}
+
+#music-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+#music-btn.playing {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+#music-icon {
+  font-size: 0.6rem;
+}
+
+/* ── FOOTER ── */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 2.5rem 3rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.footer-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 0.9rem;
+  color: var(--accent);
+}
+
+.footer-note {
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.hero > * {
+  animation: fadeUp 0.7s ease both;
+}
+
+.hero > *:nth-child(1) { animation-delay: 0.1s; }
+.hero > *:nth-child(2) { animation-delay: 0.2s; }
+.hero > *:nth-child(3) { animation-delay: 0.35s; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  header { padding: 1.5rem; flex-direction: column; gap: 1rem; }
+  nav { gap: 1rem; flex-wrap: wrap; justify-content: center; }
+  .hero { padding: 5rem 1.5rem 4rem; }
+  section { padding: 4rem 1.5rem; }
+  .project-layout,
+  .project-layout.reverse {
+    grid-template-columns: 1fr;
+    gap: 2rem;
   }
-});
- 
-// Auto-pause music when a video starts playing
-// so viewers can hear the video clearly
-document.querySelectorAll('video').forEach(video => {
-  video.addEventListener('play', () => {
-    if (!bgAudio.paused) {
-      bgAudio.pause();
-      setPlaying(false);
-    }
-  });
- 
-  // Music stays paused after a video — user controls it manually via the button
-});
- 
-// ── VIDEO PLAY BUTTONS ──
-// Clicking the play button overlay starts the video in-place
-document.querySelectorAll('.video-thumb').forEach(thumb => {
-  const btn = thumb.querySelector('.play-btn');
-  const video = thumb.querySelector('video');
- 
-  if (!btn || !video) return;
- 
-  btn.addEventListener('click', () => {
-    if (video.paused) {
-      video.play();
-      btn.style.opacity = '0';
-    } else {
-      video.pause();
-      btn.style.opacity = '1';
-    }
-  });
- 
-  video.addEventListener('pause', () => { btn.style.opacity = '1'; });
-  video.addEventListener('ended', () => { btn.style.opacity = '1'; });
-});
+  .project-layout.reverse .project-media { order: 0; }
+  .project-layout.reverse .project-info  { order: 0; }
+  .video-thumb.portrait {
+    height: 380px;
+  }
+  footer { flex-direction: column; gap: 0.5rem; text-align: center; padding: 2rem 1.5rem; }
+}
