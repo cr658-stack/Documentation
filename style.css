@@ -302,6 +302,42 @@ section {
   border-color: var(--accent);
 }
 
+/* ── MUSIC TOGGLE BUTTON ── */
+#music-btn {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.65rem 1.1rem;
+  background: rgba(12, 12, 12, 0.85);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  transition: border-color 0.2s, color 0.2s;
+}
+
+#music-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+#music-btn.playing {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+#music-icon {
+  font-size: 0.6rem;
+}
+
 /* ── FOOTER ── */
 footer {
   border-top: 1px solid var(--border);

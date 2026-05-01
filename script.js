@@ -1,19 +1,67 @@
-// ── BACKGROUND AUDIO ──
-// Once you add a src to the <audio> tag in index.html, this will auto-play it
-// and handle the loop. Browsers require a user interaction before audio can play,
-// so we start it on the first click anywhere on the page.
+// ── BACKGROUND AUDIO + MUSIC TOGGLE BUTTON ──
+const bgAudio  = document.getElementById('bg-audio');
+const musicBtn = document.getElementById('music-btn');
+const musicIcon = document.getElementById('music-icon');
+const musicLabel = document.getElementById('music-label');
 
-const bgAudio = document.getElementById('bg-audio');
+let musicStarted = false;
 
-if (bgAudio && bgAudio.querySelector('source').src) {
-  bgAudio.volume = 0.3; // adjust volume here (0.0 - 1.0)
-
-  document.addEventListener('click', () => {
-    if (bgAudio.paused) {
-      bgAudio.play().catch(() => {});
-    }
-  }, { once: true });
+function setPlaying(isPlaying) {
+  if (isPlaying) {
+    musicIcon.textContent  = '■';   // stop icon when playing
+    musicLabel.textContent = 'Pause';
+    musicBtn.classList.add('playing');
+  } else {
+    musicIcon.textContent  = '▶';
+    musicLabel.textContent = 'Music';
+    musicBtn.classList.remove('playing');
+  }
 }
+
+musicBtn.addEventListener('click', () => {
+  if (!bgAudio) return;
+
+  if (!musicStarted) {
+    // First click — start the audio
+    bgAudio.volume = 0.3; // adjust volume here (0.0 - 1.0)
+    bgAudio.play().then(() => {
+      musicStarted = true;
+      setPlaying(true);
+    }).catch(() => {});
+  } else if (bgAudio.paused) {
+    bgAudio.play();
+    setPlaying(true);
+  } else {
+    bgAudio.pause();
+    setPlaying(false);
+  }
+});
+
+// Auto-pause music when a video starts playing
+// so viewers can hear the video clearly
+document.querySelectorAll('video').forEach(video => {
+  video.addEventListener('play', () => {
+    if (!bgAudio.paused) {
+      bgAudio.pause();
+      setPlaying(false);
+    }
+  });
+
+  // Resume music when a video is paused or ends
+  video.addEventListener('pause', () => {
+    if (musicStarted && bgAudio.paused) {
+      bgAudio.play();
+      setPlaying(true);
+    }
+  });
+
+  video.addEventListener('ended', () => {
+    if (musicStarted && bgAudio.paused) {
+      bgAudio.play();
+      setPlaying(true);
+    }
+  });
+});
 
 // ── VIDEO PLAY BUTTONS ──
 // Clicking the play button overlay starts the video in-place
